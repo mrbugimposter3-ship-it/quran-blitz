@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>⚡ Quran Blitz — Photographic Hifz Trainer</title>
+<style>
+  :root{
+    --bg:#04140a; --bg2:#06210f; --panel:#08291635;
+    --neon:#00ff88; --neon2:#7dffcb; --gold:#ffd700; --danger:#ff3355;
+    --txt:#e8fff4;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none;}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--txt);
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif; overflow-x:hidden;}
+  /* animated grid background */
+  body::before{content:'';position:fixed;inset:0;z-index:-1;
+    background:
+      radial-gradient(ellipse at 50% -10%, #00ff8818, transparent 60%),
+      linear-gradient(#00ff8810 1px, transparent 1px),
+      linear-gradient(90deg, #00ff8810 1px, transparent 1px);
+    background-size:100% 100%, 40px 40px, 40px 40px;
+    animation:gridPulse 6s ease-in-out infinite;}
+  @keyframes gridPulse{0%,100%{opacity:.5}50%{opacity:1}}
+
+  .screen{display:none; min-height:100%; padding:14px; max-width:860px; margin:0 auto;}
+  .screen.active{display:block; animation:screenIn .35s cubic-bezier(.2,1.4,.4,1);}
+  @keyframes screenIn{from{opacity:0;transform:scale(.96) translateY(12px)}to{opacity:1;transform:none}}
+
+  h1.logo{text-align:center;font-size:clamp(26px,6vw,44px);margin:18px 0 4px;
+    color:var(--neon);text-shadow:0 0 18px #00ff8899,0 0 60px #00ff8844;
+    letter-spacing:1px; animation:logoPulse 2s ease-in-out infinite;}
+  @keyframes logoPulse{0%,100%{text-shadow:0 0 18px #00ff8899}50%{text-shadow:0 0 34px #00ff88,0 0 80px #00ff8866}}
+  .tagline{text-align:center;color:var(--neon2);opacity:.85;margin:0 0 18px;font-size:14px;letter-spacing:2px;text-transform:uppercase}
+
+  .btn{cursor:pointer;border:2px solid var(--neon);background:#00ff8815;color:var(--neon);
+    padding:10px 20px;border-radius:12px;font-weight:700;font-size:15px;letter-spacing:.5px;
+    transition:all .12s; text-transform:uppercase;}
+  .btn:hover{background:#00ff8830;box-shadow:0 0 18px #00ff8866;}
+  .btn:active{transform:scale(.94);}
+  .btn.primary{background:var(--neon);color:#031508;box-shadow:0 0 22px #00ff8877;}
+  .btn.ghost{border-color:#ffffff30;color:#ffffff90;}
+  .btn.small{padding:6px 12px;font-size:12px;border-radius:9px;}
+
+  .cardrow{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;}
+  .card{background:linear-gradient(160deg,#0a2f18,#05190d);border:1.5px solid #00ff8840;
+    border-radius:16px;padding:16px;width:230px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden;}
+  .card:hover{border-color:var(--neon);box-shadow:0 0 24px #00ff8840;transform:translateY(-3px);}
+  .card .ar-name{font-size:26px;color:var(--neon2);direction:rtl;text-align:center;
+    font-family:'Traditional Arabic','Scheherazade New','Amiri',serif;}
+  .card .en-name{text-align:center;font-weight:800;color:var(--neon);margin-top:2px;letter-spacing:1px;}
+  .card .meta{text-align:center;font-size:12px;color:#a7f3d0aa;margin:6px 0 10px;}
+  .card .best{text-align:center;font-size:12px;color:var(--gold);min-height:15px;}
+  .card .row{display:flex;gap:8px;justify-content:center;margin-top:8px;}
+
+  .topbar{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+  .topbar .title{flex:1;font-weight:800;color:var(--neon);font-size:17px;letter-spacing:.5px;}
+
+  /* ---- The photographic page ---- */
+  .page{background:linear-gradient(170deg,#072413ee,#04140aee);border:2px solid #00ff8855;
+    border-radius:18px;padding:18px 14px;box-shadow:0 0 40px #00ff8822 inset, 0 8px 30px #000a;
+    position:relative;}
+  .page-header{text-align:center;color:var(--gold);font-size:14px;letter-spacing:3px;
+    border-bottom:1px solid #ffd70044;padding-bottom:8px;margin-bottom:12px;text-transform:uppercase;}
+  .line{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:10px 0;direction:rtl;}
+  .w{background:#00ff880d;border:1.5px solid #00ff8830;border-radius:10px;padding:8px 10px 6px;
+    text-align:center;min-width:64px;cursor:pointer;transition:all .12s;position:relative;}
+  .w:hover{border-color:var(--neon);background:#00ff8820;}
+  .w .a{font-size:24px;line-height:1.5;color:#f0fff8;direction:rtl;
+    font-family:'Traditional Arabic','Scheherazade New','Amiri','Times New Roman',serif;}
+  .w .t{font-size:11px;color:var(--neon2);direction:ltr;font-style:italic;margin-top:2px;}
+  .w .e{font-size:10px;color:#ffffff99;direction:ltr;margin-top:1px;}
+  .w.hidden-word .a,.w.hidden-word .t,.w.hidden-word .e{visibility:hidden;}
+  .w.hidden-word{background:#00ff8806;border-style:dashed;}
+  .w.hidden-word::after{content:'؟';position:absolute;inset:0;display:flex;align-items:center;
+    justify-content:center;color:#00ff8855;font-size:22px;font-weight:900;}
+  .w.reveal .a{visibility:visible !important;}
+  .w.reveal::after{content:none;}
+  .w.picked{border-color:var(--gold);box-shadow:0 0 16px #ffd70088;transform:scale(1.06);}
+  .w.correct{border-color:var(--neon);background:#00ff8835;box-shadow:0 0 22px #00ff88;animation:pop .3s;}
+  .w.wrong{border-color:var(--danger);background:#ff335522;animation:shake .3s;}
+  .w.miss{border-color:var(--gold);box-shadow:0 0 22px var(--gold);animation:pop .5s 2;}
+  @keyframes pop{50%{transform:scale(1.14)}}
+  @keyframes shake{20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+
+  .toggles{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0;}
+  .tog{cursor:pointer;padding:6px 14px;border-radius:20px;border:1.5px solid #00ff8850;font-size:12px;
+    font-weight:700;color:#a7f3d0;background:transparent;transition:all .12s;}
+  .tog.on{background:var(--neon);color:#031508;box-shadow:0 0 14px #00ff8877;}
+
+  .fadectl{margin:12px 0;text-align:center;}
+  .fadectl label{font-size:12px;color:var(--neon2);letter-spacing:1px;text-transform:uppercase;}
+  .fadebtns{display:flex;gap:6px;justify-content:center;margin-top:6px;flex-wrap:wrap;}
+  .fb{cursor:pointer;padding:6px 10px;border-radius:8px;border:1px solid #00ff8840;font-size:11px;
+    font-weight:700;color:#a7f3d0;background:#00ff880a;}
+  .fb.on{background:var(--neon);color:#031508;}
+  /* fade levels applied to Arabic layer */
+  .page.fade1 .w .a{opacity:.55}
+  .page.fade2 .w .a{opacity:.28}
+  .page.fade3 .w .a{opacity:.12}
+  .page.fade4 .w .a{opacity:0}
+  .page.fade4 .w:hover .a{opacity:.8}
+
+  /* ---- Blitz game ---- */
+  .hud{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;
+    background:#00ff880d;border:1.5px solid #00ff8840;border-radius:14px;padding:10px 14px;margin-bottom:10px;}
+  .hud .stat{text-align:center;min-width:70px;}
+  .hud .stat .v{font-size:22px;font-weight:900;color:var(--neon);text-shadow:0 0 12px #00ff8888;}
+  .hud .stat .k{font-size:10px;color:#a7f3d0aa;letter-spacing:1.5px;text-transform:uppercase;}
+  .hud .stat .v.combo{color:var(--gold);text-shadow:0 0 12px #ffd70088;}
+  .timerbar{height:14px;background:#021007;border:1px solid #00ff8850;border-radius:10px;overflow:hidden;margin:10px 0;position:relative;}
+  .timerbar .fill{height:100%;background:linear-gradient(90deg,#00ff88,#7dffcb);width:100%;
+    box-shadow:0 0 14px #00ff88;transition:width .1s linear;}
+  .timerbar.low .fill{background:linear-gradient(90deg,#ff3355,#ff8855);animation:blink .3s infinite;}
+  @keyframes blink{50%{opacity:.5}}
+
+  .prompt{text-align:center;margin:14px 0;padding:16px;border-radius:16px;
+    background:linear-gradient(160deg,#0a2f18,#05190d);border:2px solid #ffd70066;box-shadow:0 0 24px #ffd70022;}
+  .prompt .where{font-size:11px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;}
+  .prompt .tr{font-size:clamp(22px,5vw,32px);font-weight:900;color:var(--neon2);font-style:italic;margin:6px 0 2px;}
+  .prompt .en{font-size:15px;color:#ffffffbb;}
+
+  .bigcount{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:50;
+    background:#04140acc;backdrop-filter:blur(4px);}
+  .bigcount.show{display:flex;}
+  .bigcount .n{font-size:clamp(90px,25vw,200px);font-weight:900;color:var(--neon);
+    text-shadow:0 0 60px #00ff88;animation:countPop .9s cubic-bezier(.2,1.6,.4,1);}
+  @keyframes countPop{from{transform:scale(2.4);opacity:0}40%{transform:scale(1);opacity:1}to{opacity:.9}}
+
+  .phasebanner{text-align:center;font-size:13px;letter-spacing:4px;color:var(--gold);
+    text-transform:uppercase;margin:6px 0;animation:blink 1s infinite;}
+
+  .results{text-align:center;padding:20px;}
+  .results .score{font-size:clamp(50px,12vw,90px);font-weight:900;color:var(--neon);
+    text-shadow:0 0 40px #00ff88;}
+  .results .stars{font-size:40px;letter-spacing:8px;margin:6px 0;}
+  .results .sub{color:#a7f3d0;margin:4px 0;}
+  .results .newbest{color:var(--gold);font-weight:900;animation:blink .6s 5;letter-spacing:2px;}
+
+  .combo-pop{position:fixed;font-weight:900;color:var(--gold);font-size:26px;pointer-events:none;
+    text-shadow:0 0 18px #ffd700;animation:comboUp .8s forwards;z-index:60;}
+  @keyframes comboUp{from{opacity:1;transform:translateY(0) scale(1)}to{opacity:0;transform:translateY(-60px) scale(1.4)}}
+
+  .setup{text-align:center;margin:16px 0;}
+  .setup .grp{margin:12px 0;}
+  .setup .grp .lbl{font-size:11px;letter-spacing:2px;color:var(--neon2);text-transform:uppercase;margin-bottom:6px;}
+  footer{text-align:center;margin:26px 0 10px;font-size:11px;color:#a7f3d055;}
+</style>
+</head>
+<body>
+
+<!-- ============ HOME ============ -->
+<div class="screen active" id="scr-home">
+  <h1 class="logo">⚡ QURAN BLITZ ⚡</h1>
+  <p class="tagline">Photographic Hifz Trainer · One Page At A Time</p>
+  <div class="cardrow" id="pageCards"></div>
+  <footer>Arabic · Transliteration · Word-by-word English — all pre-stored, works fully offline 🟢</footer>
+</div>
+
+<!-- ============ STUDY ============ -->
+<div class="screen" id="scr-study">
+  <div class="topbar">
+    <button class="btn small ghost" onclick="goHome()">◄ Home</button>
+    <div class="title" id="studyTitle"></div>
+    <button class="btn small primary" onclick="startBlitzSetup()">⚡ Blitz it!</button>
+  </div>
+  <div class="toggles">
+    <button class="tog on" id="togA" onclick="toggleLayer('a')">🟢 Arabic</button>
+    <button class="tog on" id="togT" onclick="toggleLayer('t')">🔤 Transliteration</button>
+    <button class="tog on" id="togE" onclick="toggleLayer('e')">📖 Translation</button>
+  </div>
+  <div class="fadectl">
+    <label>📷 Photographic Fade — burn the page into your eyes, then fade it</label>
+    <div class="fadebtns">
+      <button class="fb on" onclick="setFade(0,this)">FULL</button>
+      <button class="fb" onclick="setFade(1,this)">55%</button>
+      <button class="fb" onclick="setFade(2,this)">28%</button>
+      <button class="fb" onclick="setFade(3,this)">12%</button>
+      <button class="fb" onclick="setFade(4,this)">GHOST 👻</button>
+    </div>
+  </div>
+  <div class="page" id="studyPage"></div>
+  <div class="setup"><button class="btn ghost" onclick="flashCycle()">⚡ FLASH CYCLE (auto fade in/out)</button></div>
+</div>
+
+<!-- ============ BLITZ SETUP / GAME ============ -->
+<div class="screen" id="scr-game">
+  <div class="topbar">
+    <button class="btn small ghost" onclick="stopGame();goHome()">◄ Quit</button>
+    <div class="title" id="gameTitle"></div>
+  </div>
+
+  <div id="gameSetup" class="setup">
+    <div class="grp">
+      <div class="lbl">📷 Memorize phase</div>
+      <button class="tog" data-mem="10000" onclick="setOpt(this,'mem')">10s</button>
+      <button class="tog on" data-mem="15000" onclick="setOpt(this,'mem')">15s</button>
+      <button class="tog" data-mem="20000" onclick="setOpt(this,'mem')">20s</button>
+      <button class="tog" data-mem="30000" onclick="setOpt(this,'mem')">30s</button>
+    </div>
+    <div class="grp">
+      <div class="lbl">⚡ Round speed</div>
+      <button class="tog" data-spd="8000" onclick="setOpt(this,'spd')">CHILL 8s</button>
+      <button class="tog on" data-spd="5000" onclick="setOpt(this,'spd')">BLITZ 5s</button>
+      <button class="tog" data-spd="3000" onclick="setOpt(this,'spd')">HYPER 3s</button>
+    </div>
+    <button class="btn primary" style="font-size:20px;padding:14px 40px" onclick="countdownStart()">▶ START BLITZ</button>
+  </div>
+
+  <div id="gamePlay" style="display:none">
+    <div class="hud">
+      <div class="stat"><div class="v" id="hudScore">0</div><div class="k">Score</div></div>
+      <div class="stat"><div class="v combo" id="hudCombo">×1</div><div class="k">Combo</div></div>
+      <div class="stat"><div class="v" id="hudRound">0/0</div><div class="k">Round</div></div>
+      <div class="stat"><div class="v" id="hudStreak">0</div><div class="k">Streak</div></div>
+    </div>
+    <div class="timerbar" id="timerBar"><div class="fill" id="timerFill"></div></div>
+    <div class="phasebanner" id="phaseBanner">📷 MEMORIZE THE PAGE — POSITIONS MATTER!</div>
+    <div class="prompt" id="promptBox" style="display:none">
+      <div class="where">Tap where this word is on the page!</div>
+      <div class="tr" id="promptTr"></div>
+      <div class="en" id="promptEn"></div>
+    </div>
+    <div class="page" id="gamePage"></div>
+  </div>
+
+  <div id="gameResults" class="results" style="display:none">
+    <div class="stars" id="resStars"></div>
+    <div class="score" id="resScore"></div>
+    <div class="sub" id="resDetail"></div>
+    <div class="sub" id="resStreak"></div>
+    <div class="newbest" id="resBest" style="display:none">★ NEW BEST SCORE! ★</div>
+    <div style="margin-top:18px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <button class="btn primary" onclick="countdownStart()">🔁 AGAIN!</button>
+      <button class="btn" onclick="goHome()">🏠 HOME</button>
+    </div>
+  </div>
+</div>
+
+<div class="bigcount" id="bigCount"><div class="n" id="bigCountN">3</div></div>
+
+<script>
+/* ================================================================
+   DATA — pre-stored pages. Each word: a=Arabic, t=transliteration,
+   e=word-by-word English. Lines preserve page POSITION (the core of
+   photographic memorization).
+================================================================ */
+const W=(a,t,e)=>({a,t,e});
+const PAGES=[
+{ id:'fatiha', name:'Al-Fātiḥah', arabicName:'الفاتحة', ref:'Sūrah 1 · Mushaf page 1',
+  lines:[
+   [W('بِسْمِ','Bismi','In the name'),W('اللَّهِ','Allāhi','of Allah'),W('الرَّحْمَٰنِ','ar-Raḥmāni','the Most Gracious'),W('الرَّحِيمِ','ar-Raḥīmi','the Most Merciful')],
+   [W('الْحَمْدُ','Al-ḥamdu','All praise'),W('لِلَّهِ','lillāhi','is for Allah'),W('رَبِّ','Rabbi','Lord'),W('الْعَالَمِينَ','al-ʿālamīn','of the worlds')],
+   [W('الرَّحْمَٰنِ','ar-Raḥmāni','the Most Gracious'),W('الرَّحِيمِ','ar-Raḥīmi','the Most Merciful'),W('مَالِكِ','Māliki','Master'),W('يَوْمِ','Yawmi','of the Day'),W('الدِّينِ','ad-Dīn','of Judgment')],
+   [W('إِيَّاكَ','Iyyāka','You alone'),W('نَعْبُدُ','naʿbudu','we worship'),W('وَإِيَّاكَ','wa iyyāka','and You alone'),W('نَسْتَعِينُ','nastaʿīn','we ask for help')],
+   [W('اهْدِنَا','Ihdinā','Guide us'),W('الصِّرَاطَ','aṣ-ṣirāṭa','to the path'),W('الْمُسْتَقِيمَ','al-mustaqīm','the straight')],
+   [W('صِرَاطَ','Ṣirāṭa','The path'),W('الَّذِينَ','alladhīna','of those'),W('أَنْعَمْتَ','anʿamta','You blessed'),W('عَلَيْهِمْ','ʿalayhim','upon them')],
+   [W('غَيْرِ','Ghayri','not'),W('الْمَغْضُوبِ','al-maghḍūbi','those who earned anger'),W('عَلَيْهِمْ','ʿalayhim','upon them'),W('وَلَا','wa lā','and not'),W('الضَّالِّينَ','aḍ-ḍāllīn','the astray')]
+  ]},
+{ id:'asr', name:'Al-ʿAṣr', arabicName:'العصر', ref:'Sūrah 103 · Juz 30',
+  lines:[
+   [W('بِسْمِ','Bismi','In the name'),W('اللَّهِ','Allāhi','of Allah'),W('الرَّحْمَٰنِ','ar-Raḥmāni','the Most Gracious'),W('الرَّحِيمِ','ar-Raḥīmi','the Most Merciful')],
+   [W('وَالْعَصْرِ','Wal-ʿaṣr','By time!')],
+   [W('إِنَّ','Inna','Indeed'),W('الْإِنسَانَ','al-insāna','mankind'),W('لَفِي','lafī','is surely in'),W('خُسْرٍ','khusr','loss')],
+   [W('إِلَّا','Illā','Except'),W('الَّذِينَ','alladhīna','those who'),W('آمَنُوا','āmanū','believe'),W('وَعَمِلُوا','wa ʿamilū','and do'),W('الصَّالِحَاتِ','aṣ-ṣāliḥāti','righteous deeds')],
+   [W('وَتَوَاصَوْا','wa tawāṣaw','and urge one another'),W('بِالْحَقِّ','bil-ḥaqqi','to the truth'),W('وَتَوَاصَوْا','wa tawāṣaw','and urge one another'),W('بِالصَّبْرِ','biṣ-ṣabr','to patience')]
+  ]},
+{ id:'kawthar', name:'Al-Kawthar', arabicName:'الكوثر', ref:'Sūrah 108 · Juz 30',
+  lines:[
+   [W('بِسْمِ','Bismi','In the name'),W('اللَّهِ','Allāhi','of Allah'),W('الرَّحْمَٰنِ','ar-Raḥmāni','the Most Gracious'),W('الرَّحِيمِ','ar-Raḥīmi','the Most Merciful')],
+   [W('إِنَّا','Innā','Indeed We'),W('أَعْطَيْنَاكَ','aʿṭaynāka','have granted you'),W('الْكَوْثَرَ','al-Kawthar','the Abundance')],
+   [W('فَصَلِّ','Faṣalli','So pray'),W('لِرَبِّكَ','liRabbika','to your Lord'),W('وَانْحَرْ','wanḥar','and sacrifice')],
+   [W('إِنَّ','Inna','Indeed'),W('شَانِئَكَ','shāniʾaka','your enemy'),W('هُوَ','huwa','he is'),W('الْأَبْتَرُ','al-abtar','the one cut off')]
+  ]},
+{ id:'nasr', name:'An-Naṣr', arabicName:'النصر', ref:'Sūrah 110 · Juz 30',
+  lines:[
+   [W('بِسْمِ','Bismi','In the name'),W('اللَّهِ','Allāhi','of Allah'),W('الرَّحْمَٰنِ','ar-Raḥmāni','the Most Gracious'),W('الرَّحِيمِ','ar-Raḥīmi','the Most Merciful')],
+   [W('إِذَا','Idhā','When'),W('جَاءَ','jāʾa','comes'),W('نَصْرُ','naṣru','the victory'),W('اللَّهِ','Allāhi','of Allah'),W('وَالْفَتْحُ','wal-fatḥu','and the conquest')],
+   [W('وَرَأَيْتَ','Wa raʾayta','And you see'),W('النَّاسَ','an-nāsa','the people'),W('يَدْخُلُونَ','yadkhulūna','entering'),W('فِي','fī','into'),W('دِينِ','dīni','the religion'),W('اللَّهِ','Allāhi','of Allah'),W('أَفْوَاجًا','afwājan','in multitudes')],
+   [W('فَسَبِّحْ','Fasabbiḥ','Then glorify'),W('بِحَمْدِ','biḥamdi','with the praise'),W('رَبِّكَ','Rabbika','of your Lord'),W('وَاسْتَغْفِرْهُ','wastaghfirhu','and seek His forgiveness')],
+   [W('إِنَّهُ','Innahu','Indeed He'),W('كَانَ','kāna','ever is'),W('تَوَّابًا','tawwāba','Accepting of repentance')]
+  ]},
+{ id:'ikhlas', name:'Al-Ikhlāṣ', arabicName:'الإخلاص', ref:'Sūrah 112 · Juz 30',
+  lines:[
+   [W('بِسْمِ','Bismi','In the name'),W('اللَّهِ','Allāhi','of Allah'),W('الرَّحْمَٰنِ','ar-Raḥmāni','the Most Gracious'),W('الرَّحِيمِ','ar-Raḥīmi','the Most Merciful')],
+   [W('قُلْ','Qul','Say:'),W('هُوَ','Huwa','He is'),W('اللَّهُ','Allāhu','Allah'),W('أَحَدٌ','Aḥad','the One')],
+   [W('اللَّهُ','Allāhu','Allah'),W('الصَّمَدُ','aṣ-Ṣamad','the Eternal Refuge')],
+   [W('لَمْ','Lam','He does not'),W('يَلِدْ','yalid','beget'),W('وَلَمْ','wa lam','and nor'),W('يُولَدْ','yūlad','is He begotten')],
+   [W('وَلَمْ','Wa lam','And not'),W('يَكُن','yakun','there is'),W('لَهُ','lahu','for Him'),W('كُفُوًا','kufuwan','equivalent'),W('أَحَدٌ','aḥad','anyone')]
+  ]},
+{ id:'falaq', name:'Al-Falaq', arabicName:'الفلق', ref:'Sūrah 113 · Juz 30',
+  lines:[
+   [W('بِسْمِ','Bismi','In the name'),W('اللَّهِ','Allāhi','of Allah'),W('الرَّحْمَٰنِ','ar-Raḥmāni','the Most Gracious'),W('الرَّحِيمِ','ar-Raḥīmi','the Most Merciful')],
+   [W('قُلْ','Qul','Say:'),W('أَعُوذُ','aʿūdhu','I seek refuge'),W('بِرَبِّ','biRabbi','in the Lord'),W('الْفَلَقِ','al-falaq','of the daybreak')],
+   [W('مِن','Min','From'),W('شَرِّ','sharri','the evil'),W('مَا','mā','of what'),W('خَلَقَ','khalaq','He created')],
+   [W('وَمِن','Wa min','And from'),W('شَرِّ','sharri','the evil'),W('غَاسِقٍ','ghāsiqin','of darkness'),W('إِذَا','idhā','when'),W('وَقَبَ','waqab','it settles')],
+   [W('وَمِن','Wa min','And from'),W('شَرِّ','sharri','the evil'),W('النَّفَّاثَاتِ','an-naffāthāti','of the blowers'),W('فِي','fī','in'),W('الْعُقَدِ','al-ʿuqad','the knots')],
+   [W('وَمِن','Wa min','And from'),W('شَرِّ','sharri','the evil'),W('حَاسِدٍ','ḥāsidin','of an envier'),W('إِذَا','idhā','when'),W('حَسَدَ','ḥasad','he envies')]
+  ]},
+{ id:'nas', name:'An-Nās', arabicName:'الناس', ref:'Sūrah 114 · Juz 30 · Final page',
+  lines:[
+   [W('بِسْمِ','Bismi','In the name'),W('اللَّهِ','Allāhi','of Allah'),W('الرَّحْمَٰنِ','ar-Raḥmāni','the Most Gracious'),W('الرَّحِيمِ','ar-Raḥīmi','the Most Merciful')],
+   [W('قُلْ','Qul','Say:'),W('أَعُوذُ','aʿūdhu','I seek refuge'),W('بِرَبِّ','biRabbi','in the Lord'),W('النَّاسِ','an-nās','of mankind')],
+   [W('مَلِكِ','Maliki','the King'),W('النَّاسِ','an-nās','of mankind')],
+   [W('إِلَٰهِ','Ilāhi','the God'),W('النَّاسِ','an-nās','of mankind')],
+   [W('مِن','Min','From'),W('شَرِّ','sharri','the evil'),W('الْوَسْوَاسِ','al-waswāsi','of the whisperer'),W('الْخَنَّاسِ','al-khannāsi','the retreating one')],
+   [W('الَّذِي','Alladhī','Who'),W('يُوَسْوِسُ','yuwaswisu','whispers'),W('فِي','fī','into'),W('صُدُورِ','ṣudūri','the chests'),W('النَّاسِ','an-nās','of mankind')],
+   [W('مِنَ','Mina','From'),W('الْجِنَّةِ','al-jinnati','the jinn'),W('وَالنَّاسِ','wan-nāsi','and mankind')]
+  ]}
+];
+
+/* ================= AUDIO (synthesized, no files) ================= */
+let AC=null;
+function ac(){ if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)();
+  if(AC.state==='suspended') AC.resume(); return AC; }
+function tone(f,d,type,v,delay){
+  try{ const c=ac(),t=c.currentTime+(delay||0);
+    const o=c.createOscillator(),g=c.createGain();
+    o.type=type||'sine'; o.frequency.setValueAtTime(f,t);
+    g.gain.setValueAtTime(v||0.15,t); g.gain.exponentialRampToValueAtTime(0.001,t+d);
+    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+d+0.02);
+  }catch(e){}
+}
+const S={
+  tap(){ tone(700,.06,'square',.10); },
+  tick(){ tone(1250,.035,'square',.07); },
+  count(){ tone(600,.12,'sine',.2); },
+  go(){ tone(880,.15,'sine',.25); tone(1320,.3,'sine',.2,.1); },
+  correct(combo){ tone(523,.1,'sine',.2); tone(784,.12,'sine',.2,.07);
+    tone(1047+(combo||0)*60,.2,'sine',.2,.14); },
+  wrong(){ tone(200,.2,'sawtooth',.18); tone(130,.3,'sawtooth',.15,.06); },
+  win(){ [523,659,784,1047,1319,1568].forEach((f,i)=>tone(f,.28,'sine',.2,i*.11)); },
+  fade(){ tone(1500,.05,'triangle',.08); }
+};
+
+/* ================= NAV / STATE ================= */
+let curPage=null, layers={a:true,t:true,e:true}, flashTimer=null;
+const $=id=>document.getElementById(id);
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $(id).classList.add('active'); window.scrollTo(0,0); }
+function goHome(){ stopFlash(); stopGame(); renderHome(); show('scr-home'); }
+
+function wordCount(p){ return p.lines.reduce((n,l)=>n+l.length,0); }
+function bestKey(p){ return 'qb_best_'+p.id; }
+
+function renderHome(){
+  const c=$('pageCards'); c.innerHTML='';
+  PAGES.forEach(p=>{
+    const best=localStorage.getItem(bestKey(p));
+    const d=document.createElement('div'); d.className='card';
+    d.innerHTML=`<div class="ar-name">${p.arabicName}</div>
+      <div class="en-name">${p.name}</div>
+      <div class="meta">${p.ref}<br>📷 ${p.lines.length} lines · ${wordCount(p)} words</div>
+      <div class="best">${best?'🏆 Best: '+best:''}</div>
+      <div class="row">
+        <button class="btn small" data-act="study">📖 STUDY</button>
+        <button class="btn small primary" data-act="blitz">⚡ BLITZ</button>
+      </div>`;
+    d.querySelector('[data-act=study]').onclick=e=>{e.stopPropagation();openStudy(p);};
+    d.querySelector('[data-act=blitz]').onclick=e=>{e.stopPropagation();openBlitz(p);};
+    d.onclick=()=>openStudy(p);
+    c.appendChild(d);
+  });
+}
+
+/* ================= STUDY MODE ================= */
+function renderPageInto(el,p,{hidden=false}={}){
+  el.innerHTML=`<div class="page-header">﴾ ${p.name} · ${p.ref} ﴿</div>`;
+  p.lines.forEach((line,li)=>{
+    const ld=document.createElement('div'); ld.className='line';
+    line.forEach((w,wi)=>{
+      const d=document.createElement('div'); d.className='w'+(hidden?' hidden-word':'');
+      d.dataset.li=li; d.dataset.wi=wi;
+      d.innerHTML=`<div class="a">${w.a}</div><div class="t">${w.t}</div><div class="e">${w.e}</div>`;
+      ld.appendChild(d);
+    });
+    el.appendChild(ld);
+  });
+}
+function openStudy(p){
+  curPage=p; stopFlash();
+  $('studyTitle').textContent='📖 '+p.name;
+  layers={a:true,t:true,e:true};
+  ['A','T','E'].forEach(k=>$('tog'+k).classList.add('on'));
+  const pg=$('studyPage'); pg.className='page';
+  renderPageInto(pg,p);
+  applyLayers();
+  pg.querySelectorAll('.w').forEach(el=>{
+    el.onclick=()=>{ S.tap();
+      el.classList.toggle('picked');
+      if(pg.classList.contains('fade4')){ el.querySelector('.a').style.opacity=
+        el.querySelector('.a').style.opacity==='1'?'':'1'; }
+    };
+  });
+  document.querySelectorAll('#scr-study .fb').forEach(b=>b.classList.remove('on'));
+  document.querySelector('#scr-study .fb').classList.add('on');
+  show('scr-study');
+}
+function applyLayers(){
+  const pg=$('studyPage');
+  pg.querySelectorAll('.a').forEach(x=>x.style.display=layers.a?'':'none');
+  pg.querySelectorAll('.t').forEach(x=>x.style.display=layers.t?'':'none');
+  pg.querySelectorAll('.e').forEach(x=>x.style.display=layers.e?'':'none');
+}
+function toggleLayer(k){ layers[k]=!layers[k];
+  $('tog'+k.toUpperCase()).classList.toggle('on',layers[k]);
+  applyLayers(); S.tap(); }
+function setFade(n,btn){
+  const pg=$('studyPage');
+  pg.classList.remove('fade1','fade2','fade3','fade4');
+  if(n>0) pg.classList.add('fade'+n);
+  document.querySelectorAll('#scr-study .fb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on'); S.fade();
+}
+function flashCycle(){
+  stopFlash(); let n=0;
+  const btns=document.querySelectorAll('#scr-study .fb');
+  S.go();
+  flashTimer=setInterval(()=>{
+    n=(n+1)%6; // 0..4 fade levels then hold full
+    const lvl=n>4?0:n;
+    const pg=$('studyPage');
+    pg.classList.remove('fade1','fade2','fade3','fade4');
+    if(lvl>0)pg.classList.add('fade'+lvl);
+    btns.forEach(b=>b.classList.remove('on')); btns[lvl].classList.add('on');
+    S.fade();
+  },2500);
+}
+function stopFlash(){ if(flashTimer){clearInterval(flashTimer);flashTimer=null;} }
+
+/* ================= BLITZ GAME ================= */
+const G={ mem:15000, spd:5000, running:false, order:[], idx:0, score:0, combo:0,
+  bestStreak:0, streak:0, correctCount:0, raf:null, roundStart:0, phase:'idle', locked:false };
+
+function setOpt(btn,kind){
+  const v=+btn.dataset[kind];
+  G[kind]=v;
+  btn.parentElement.querySelectorAll('.tog').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on'); S.tap();
+}
+function openBlitz(p){
+  curPage=p; $('gameTitle').textContent='⚡ '+p.name;
+  $('gameSetup').style.display=''; $('gamePlay').style.display='none';
+  $('gameResults').style.display='none';
+  show('scr-game');
+}
+function startBlitzSetup(){ if(curPage) openBlitz(curPage); }
+
+function countdownStart(){
+  $('gameSetup').style.display='none'; $('gameResults').style.display='none';
+  $('gamePlay').style.display='none';
+  const bc=$('bigCount'), n=$('bigCountN'); bc.classList.add('show');
+  let i=3;
+  const step=()=>{
+    if(i>0){ n.textContent=i; S.count();
+      n.style.animation='none'; void n.offsetWidth; n.style.animation='';
+      i--; setTimeout(step,750);
+    } else { n.textContent='GO!'; S.go();
+      n.style.animation='none'; void n.offsetWidth; n.style.animation='';
+      setTimeout(()=>{bc.classList.remove('show'); beginMemorize();},600);
+    }
+  }; step();
+}
+
+function buildGamePage(hidden){
+  const pg=$('gamePage'); pg.className='page';
+  renderPageInto(pg,curPage,{hidden});
+  pg.querySelectorAll('.w').forEach(el=>{ el.onclick=()=>onWordTap(el); });
+}
+
+function beginMemorize(){
+  G.running=true; G.phase='memorize';
+  G.order=[];
+  curPage.lines.forEach((l,li)=>l.forEach((w,wi)=>G.order.push({li,wi})));
+  G.total=G.order.length;
+  // shuffle
+  for(let i=G.order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[G.order[i],G.order[j]]=[G.order[j],G.order[i]];}
+  G.idx=0; G.score=0; G.combo=0; G.streak=0; G.bestStreak=0; G.correctCount=0;
+  hud();
+  $('gamePlay').style.display='';
+  $('promptBox').style.display='none';
+  $('phaseBanner').textContent='📷 MEMORIZE THE PAGE — POSITIONS MATTER!';
+  buildGamePage(false);
+  startTimer(G.mem,()=>{
+    // blank the page — photographic recall begins
+    buildGamePage(true);
+    $('phaseBanner').textContent='🧠 PAGE LOCKED IN YOUR MIND! TAP THE POSITIONS!';
+    $('promptBox').style.display='';
+    setTimeout(nextRound,900);
+  });
+}
+
+function hud(){
+  $('hudScore').textContent=G.score;
+  $('hudCombo').textContent='×'+Math.max(1,G.combo);
+  $('hudRound').textContent=Math.min(G.idx+ (G.phase==='quiz'?1:0),G.total)+'/'+G.total;
+  $('hudStreak').textContent=G.streak;
+}
+
+function startTimer(ms,onDone){
+  cancelAnimationFrame(G.raf);
+  const bar=$('timerBar'), fill=$('timerFill'), t0=performance.now();
+  let lastTick=-1;
+  const frame=now=>{
+    if(!G.running) return;
+    const el=now-t0, left=Math.max(0,ms-el), pct=left/ms*100;
+    fill.style.width=pct+'%';
+    bar.classList.toggle('low',pct<30);
+    const sec=Math.ceil(left/1000);
+    if(left>0 && left<=5000 && sec!==lastTick){ lastTick=sec; S.tick(); }
+    if(left<=0){ bar.classList.remove('low'); fill.style.width='0%'; onDone&&onDone(); return; }
+    G.raf=requestAnimationFrame(frame);
+  };
+  G.raf=requestAnimationFrame(frame);
+}
+
+function nextRound(){
+  if(G.idx>=G.total){ endGame(); return; }
+  G.phase='quiz'; G.locked=false;
+  const {li,wi}=G.order[G.idx];
+  const w=curPage.lines[li][wi];
+  $('promptTr').textContent=w.t;
+  $('promptEn').textContent='“'+w.e+'”';
+  hud();
+  startTimer(G.spd,()=>resolveRound(null)); // timeout = miss
+}
+
+function onWordTap(el){
+  if(!G.running||G.phase!=='quiz'||G.locked) return;
+  const li=+el.dataset.li, wi=+el.dataset.wi;
+  const target=G.order[G.idx];
+  resolveRound({el,li,wi,target});
+}
+
+function wordEl(li,wi){ return $('gamePage').querySelector(`.w[data-li="${li}"][data-wi="${wi}"]`); }
+
+function resolveRound(pick){
+  if(G.locked) return; G.locked=true;
+  cancelAnimationFrame(G.raf);
+  $('timerBar').classList.remove('low');
+  const target=G.order[G.idx];
+  const tEl=wordEl(target.li,target.wi);
+  const left=parseFloat($('timerFill').style.width)||0;
+
+  if(pick && pick.li===target.li && pick.wi===target.wi){
+    // CORRECT
+    G.combo++; G.streak++; G.bestStreak=Math.max(G.bestStreak,G.streak);
+    const timeBonus=Math.round(left); // 0..100
+    const pts=(100+timeBonus)*Math.min(G.combo,8);
+    G.score+=pts; G.correctCount++;
+    S.correct(G.combo);
+    pick.el.classList.add('correct'); pick.el.classList.add('reveal');
+    comboPop('+'+pts+(G.combo>1?'  ×'+G.combo:''),pick.el);
+  } else {
+    // WRONG or TIMEOUT
+    G.combo=0; G.streak=0;
+    S.wrong();
+    if(pick){ pick.el.classList.add('wrong'); }
+    tEl.classList.add('miss'); tEl.classList.add('reveal'); // burn the correct spot in
+    setTimeout(()=>{ tEl.classList.remove('miss'); },1400);
+  }
+  G.idx++;
+  hud();
+  setTimeout(()=>{
+    if(!G.running) return;
+    tEl.classList.remove('reveal','correct','miss');
+    const w2=$('gamePage').querySelectorAll('.w');
+    w2.forEach(x=>x.classList.remove('wrong'));
+    nextRound();
+  }, pick&&pick.li===target.li&&pick.wi===target.wi?650:1400);
+}
+
+function comboPop(txt,anchor){
+  const r=anchor.getBoundingClientRect();
+  const d=document.createElement('div'); d.className='combo-pop'; d.textContent=txt;
+  d.style.left=(r.left+r.width/2-30)+'px'; d.style.top=(r.top-10)+'px';
+  document.body.appendChild(d); setTimeout(()=>d.remove(),800);
+}
+
+function endGame(){
+  G.running=false; G.phase='idle';
+  cancelAnimationFrame(G.raf);
+  $('gamePlay').style.display='none';
+  const acc=Math.round(G.correctCount/G.total*100);
+  const stars=acc>=95?3:acc>=75?2:acc>=50?1:0;
+  $('resStars').textContent='⭐'.repeat(stars)+'☆'.repeat(3-stars);
+  $('resScore').textContent=G.score;
+  $('resDetail').textContent=`${G.correctCount}/${G.total} correct · ${acc}% accuracy`;
+  $('resStreak').textContent=`🔥 Best streak: ${G.bestStreak}`;
+  const key=bestKey(curPage), prev=+(localStorage.getItem(key)||0);
+  if(G.score>prev){ localStorage.setItem(key,G.score);
+    $('resBest').style.display=''; } else $('resBest').style.display='none';
+  $('gameResults').style.display='';
+  if(stars>=2) S.win(); else if(acc>=50) S.go(); else S.wrong();
+}
+
+function stopGame(){ G.running=false; G.phase='idle'; cancelAnimationFrame(G.raf);
+  $('bigCount').classList.remove('show'); }
+
+/* boot */
+renderHome();
+</script>
+</body>
+</html>
