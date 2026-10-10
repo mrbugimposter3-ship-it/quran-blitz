@@ -74,6 +74,10 @@
   .w.hidden-word{background:#00ff8806;border-style:dashed;}
   .w.hidden-word::after{content:'؟';position:absolute;inset:0;display:flex;align-items:center;
     justify-content:center;color:#00ff8855;font-size:22px;font-weight:900;}
+  .w.vmark{background:transparent;border:none;min-width:0;padding:8px 4px;cursor:default;box-shadow:none;}
+  .w.vmark .vm{font-size:24px;color:var(--gold);text-shadow:0 0 12px #ffd70077;
+    font-family:'Traditional Arabic','Amiri',serif;direction:rtl;line-height:1.5;}
+  .w.vmark:hover{background:transparent;border:none;}
   .w.reveal .a{visibility:visible !important;}
   .w.reveal::after{content:none;}
   .w.picked{border-color:var(--gold);box-shadow:0 0 16px #ffd70088;transform:scale(1.06);}
@@ -246,6 +250,8 @@
    photographic memorization).
 ================================================================ */
 const W=(a,t,e)=>({a,t,e});
+const V=n=>({v:n}); // verse-end marker (golden ornament, never quizzed)
+const arNum=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const PAGES=[
 { id:'fatiha', name:'Al-Fātiḥah', arabicName:'الفاتحة', ref:'Sūrah 1 · Mushaf page 1',
   lines:[
@@ -307,15 +313,21 @@ const PAGES=[
    [W('الَّذِي','Alladhī','Who'),W('يُوَسْوِسُ','yuwaswisu','whispers'),W('فِي','fī','into'),W('صُدُورِ','ṣudūri','the chests'),W('النَّاسِ','an-nās','of mankind')],
    [W('مِنَ','Mina','From'),W('الْجِنَّةِ','al-jinnati','the jinn'),W('وَالنَّاسِ','wan-nāsi','and mankind')]
   ]},
-  { id:'nisa', name:'Nisa', arabicName:'nisa', ref:'Sūrah 4 · Juz 4 · page 81',
+  { id:'nisa', name:'An-Nisā', arabicName:'النساء', ref:'Sūrah 4 · Juz 4 · Mushaf page 81 · Āyāt 20–23',
   lines:[
-   [W('وَإِنْ أَرَدتُّمُ','Wa in aradtum','And if you intend'),W('ٱسْتِبْدَالَ','as tibdala','replacing'),W('زَوْجٍ','zayjim','a wife'),W('مَّكَانَ','makana','in place'),W('زَوْجٍ','zawjew','of a wife'),W('وَءَاتَيْتُمْ','wa ataytum','and you have given')],
-   [W('إِحْدَىٰهُنَّ','Ihdahuna','one of them'),W('قِنطَارًا','qintaran','heap (of gold)'),W('فَلَا','fala','then (do) not'),W('تَأْخُذُوا۟','ta khuzu','take away'),W('مِنْهُ','minhu','from it'),W('شَيْـًٔا ۚ','shaya','anything'),W('أَتَأْخُذُونَهُۥ','ata khuzunahu','Would you take it')],
-   [W('بُهْتَـٰنًا','buhtanan','(by) slander'),W('وَإِثْمًا','wa ithman','and a sin'),W('20 مُّبِينًا','mubeena','open'),W('وَكَيْفَ','wa kayfa','And how'),W('تَأْخُذُونَهُۥ','ta khuzu nahu','could you take it'),W('وَقَدْ','wa qad','when surely'),W('أَفْضَىٰ','afda','has gone')],
-   [W('بَعْضُكُمْ','ba dukum','one of you'),W('إِلَىٰ','ila','to'),W('بَعْضٍ','ba din','another'),W('وَأَخَذْنَ','wa akhaz na','and they have taken'),W('مِنكُم','minkum','from you'),W('مِّيثَـٰقًا','meeth aqan','convenant'),W('غَلِيظًا','ghaleeza','strong')],
-   [W('وَلَا','wa la','And (do) not'),W('تَنكِحُوا۟','tan ki hu','marry'),W('مَا','ma','whom'),W('نَكَحَ','na ka ha','married'),W('ءَابَآؤُكُم','aba u kum','your fathers'),W('مِّنَ','mina','of'),W('ٱلنِّسَآءِ','nisa','the women')],
-   [W('إِلَّا','illa','except'),W('مَا','ma','what'),W('قَدْ','qad','has'),W('سَلَفَ ۚ','salaf','passed before'),W('إِنَّهُۥ','innahu','indeed it'),W('كَانَ','ka na','was'),W('فَـٰحِشَةً','fa hisha tan','an immorality'),W('وَمَقْتًا','wa maqtan','and hateful'),W('وَسَآءَ','wa sa a','and (an) evil')],
-   [W('مِنَ','Mina','From'),W('الْجِنَّةِ','al-jinnati','the jinn'),W('وَالنَّاسِ','wan-nāsi','and mankind')]
+   [W('وَإِنْ','Wa-in','And if'),W('أَرَدتُّمُ','aradtum','you intend'),W('ٱسْتِبْدَالَ','istibdāla','replacing'),W('زَوْجٍ','zawjin','a wife'),W('مَّكَانَ','makāna','in place of'),W('زَوْجٍ','zawjin','a wife'),W('وَءَاتَيْتُمْ','wa-ātaytum','and you have given')],
+   [W('إِحْدَىٰهُنَّ','iḥdāhunna','one of them'),W('قِنطَارًا','qinṭāran','a heap (of gold)'),W('فَلَا','falā','then do not'),W('تَأْخُذُوا۟','ta’khudhū','take'),W('مِنْهُ','minhu','from it'),W('شَيْـًٔا','shay’an','anything'),W('أَتَأْخُذُونَهُۥ','ata’khudhūnahu','Would you take it')],
+   [W('بُهْتَـٰنًا','buhtānan','(by) slander'),W('وَإِثْمًا','wa-ithman','and a sin'),W('مُّبِينًا','mubīnan','clear'),V(20),W('وَكَيْفَ','wakayfa','And how'),W('تَأْخُذُونَهُۥ','ta’khudhūnahu','could you take it'),W('وَقَدْ','waqad','when'),W('أَفْضَىٰ','afḍā','has gone')],
+   [W('بَعْضُكُمْ','baʿḍukum','one of you'),W('إِلَىٰ','ilā','to'),W('بَعْضٍ','baʿḍin','another'),W('وَأَخَذْنَ','wa-akhadhna','and they have taken'),W('مِنكُم','minkum','from you'),W('مِّيثَـٰقًا','mīthāqan','a covenant'),W('غَلِيظًا','ghalīẓan','solemn'),V(21)],
+   [W('وَلَا','walā','And do not'),W('تَنكِحُوا۟','tankiḥū','marry'),W('مَا','mā','whom'),W('نَكَحَ','nakaḥa','married'),W('ءَابَآؤُكُم','ābā’ukum','your fathers'),W('مِّنَ','mina','of'),W('ٱلنِّسَآءِ','an-nisā’i','the women')],
+   [W('إِلَّا','illā','except'),W('مَا','mā','what'),W('قَدْ','qad','has'),W('سَلَفَ','salafa','passed before'),W('إِنَّهُۥ','innahu','indeed it'),W('كَانَ','kāna','was'),W('فَـٰحِشَةً','fāḥishatan','an immorality'),W('وَمَقْتًا','wamaqtan','and hateful'),W('وَسَآءَ','wasā’a','and an evil'),W('سَبِيلًا','sabīlan','way'),V(22)],
+   [W('حُرِّمَتْ','Ḥurrimat','Forbidden'),W('عَلَيْكُمْ','ʿalaykum','to you'),W('أُمَّهَـٰتُكُمْ','ummahātukum','are your mothers'),W('وَبَنَاتُكُمْ','wabanātukum','and your daughters'),W('وَأَخَوَٰتُكُمْ','wa-akhawātukum','and your sisters'),W('وَعَمَّـٰتُكُمْ','wa-ʿammātukum','and your paternal aunts'),W('وَخَـٰلَـٰتُكُمْ','wakhālātukum','and your maternal aunts')],
+   [W('وَبَنَاتُ','wabanātu','and the daughters'),W('ٱلْأَخِ','al-akhi','of the brother'),W('وَبَنَاتُ','wabanātu','and the daughters'),W('ٱلْأُخْتِ','al-ukhti','of the sister'),W('وَأُمَّهَـٰتُكُمُ','wa-ummahātukumu','and your mothers'),W('ٱلَّـٰتِىٓ','allātī','who'),W('أَرْضَعْنَكُمْ','arḍaʿnakum','nursed you')],
+   [W('وَأَخَوَٰتُكُم','wa-akhawātukum','and your sisters'),W('مِّنَ','mina','from'),W('ٱلرَّضَـٰعَةِ','ar-raḍāʿati','suckling'),W('وَأُمَّهَـٰتُ','wa-ummahātu','and the mothers'),W('نِسَآئِكُمْ','nisā’ikum','of your wives'),W('وَرَبَـٰٓئِبُكُمُ','warabā’ibukumu','and your stepdaughters')],
+   [W('ٱلَّـٰتِى','allātī','who'),W('فِى','fī','are in'),W('حُجُورِكُم','ḥujūrikum','your care'),W('مِّن','min','from'),W('نِّسَآئِكُمُ','nisā’ikumu','your wives'),W('ٱلَّـٰتِى','allātī','whom'),W('دَخَلْتُم','dakhaltum','you have gone in'),W('بِهِنَّ','bihinna','unto them')],
+   [W('فَإِن','fa-in','but if'),W('لَّمْ','lam','not'),W('تَكُونُوا۟','takūnū','you have'),W('دَخَلْتُم','dakhaltum','gone in'),W('بِهِنَّ','bihinna','unto them'),W('فَلَا','falā','then no'),W('جُنَاحَ','junāḥa','sin'),W('عَلَيْكُمْ','ʿalaykum','upon you')],
+   [W('وَحَلَـٰٓئِلُ','waḥalā’ilu','and the wives'),W('أَبْنَآئِكُمُ','abnā’ikumu','of your sons'),W('ٱلَّذِينَ','alladhīna','who'),W('مِنْ','min','are from'),W('أَصْلَـٰبِكُمْ','aṣlābikum','your loins'),W('وَأَن','wa-an','and that'),W('تَجْمَعُوا۟','tajmaʿū','you combine')],
+   [W('بَيْنَ','bayna','between'),W('ٱلْأُخْتَيْنِ','al-ukhtayn','the two sisters'),W('إِلَّا','illā','except'),W('مَا','mā','what'),W('قَدْ','qad','has'),W('سَلَفَ','salafa','passed before'),W('إِنَّ','inna','indeed'),W('ٱللَّهَ','Allāha','Allah'),W('كَانَ','kāna','is ever'),W('غَفُورًا','ghafūran','Forgiving'),W('رَّحِيمًا','raḥīman','Merciful'),V(23)]
   ]},
 ];
 
@@ -350,7 +362,7 @@ function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.r
   $(id).classList.add('active'); window.scrollTo(0,0); }
 function goHome(){ stopFlash(); stopGame(); renderHome(); show('scr-home'); }
 
-function wordCount(p){ return p.lines.reduce((n,l)=>n+l.length,0); }
+function wordCount(p){ return p.lines.reduce((n,l)=>n+l.filter(w=>w.v===undefined).length,0); }
 function bestKey(p){ return 'qb_best_'+p.id; }
 
 function renderHome(){
@@ -379,6 +391,11 @@ function renderPageInto(el,p,{hidden=false}={}){
   p.lines.forEach((line,li)=>{
     const ld=document.createElement('div'); ld.className='line';
     line.forEach((w,wi)=>{
+      if(w.v!==undefined){ // verse marker: golden landmark, always visible
+        const d=document.createElement('div'); d.className='w vmark';
+        d.innerHTML=`<div class="vm">﴿${arNum(w.v)}﴾</div>`;
+        ld.appendChild(d); return;
+      }
       const d=document.createElement('div'); d.className='w'+(hidden?' hidden-word':'');
       d.dataset.li=li; d.dataset.wi=wi;
       d.innerHTML=`<div class="a">${w.a}</div><div class="t">${w.t}</div><div class="e">${w.e}</div>`;
@@ -395,7 +412,7 @@ function openStudy(p){
   const pg=$('studyPage'); pg.className='page';
   renderPageInto(pg,p);
   applyLayers();
-  pg.querySelectorAll('.w').forEach(el=>{
+  pg.querySelectorAll('.w:not(.vmark)').forEach(el=>{
     el.onclick=()=>{ S.tap();
       el.classList.toggle('picked');
       if(pg.classList.contains('fade4')){ el.querySelector('.a').style.opacity=
@@ -475,13 +492,13 @@ function countdownStart(){
 function buildGamePage(hidden){
   const pg=$('gamePage'); pg.className='page';
   renderPageInto(pg,curPage,{hidden});
-  pg.querySelectorAll('.w').forEach(el=>{ el.onclick=()=>onWordTap(el); });
+  pg.querySelectorAll('.w:not(.vmark)').forEach(el=>{ el.onclick=()=>onWordTap(el); });
 }
 
 function beginMemorize(){
   G.running=true; G.phase='memorize';
   G.order=[];
-  curPage.lines.forEach((l,li)=>l.forEach((w,wi)=>G.order.push({li,wi})));
+  curPage.lines.forEach((l,li)=>l.forEach((w,wi)=>{ if(w.v===undefined) G.order.push({li,wi}); }));
   G.total=G.order.length;
   // shuffle
   for(let i=G.order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[G.order[i],G.order[j]]=[G.order[j],G.order[i]];}
